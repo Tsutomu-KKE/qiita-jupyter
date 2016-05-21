@@ -3,19 +3,32 @@ from flask import Flask, redirect, request
 from itertools import takewhile
 
 app = Flask(__name__)
-user = 'Tsutomu-KKE@github'
+env = {
+  'tag': 'python',
+  'user': 'Tsutomu-KKE@github',
+  'host': None,
+  'port': '8888',
+}
+
+@app.route('/config')
+def config():
+    env.update({i:j for i, j in request.args.items()})
+    return '<html><head><title>Qiita記事</title></head><body>' + \
+           '<h1>ENV</h1>%s</body></html>'%env
 
 @app.route('/')
 def root():
-    req = 'http://qiita.com/api/v2/items?query=tag%3Apython+user%3A' \
-          + urllib.parse.quote(user)
+    req = 'http://qiita.com/api/v2/items?query=tag%3A' \
+          + urllib.parse.quote(env['tag'])+'+user%3A' \
+          + urllib.parse.quote(env['user'])
     dt = json.loads(urllib.request.urlopen(req).read().decode())
     rr = []
+    print('<%s>'%env)
     for i, d in enumerate(dt):
         rr.append('<li><a href="%s" target="_blank">%s</a></li>'%(d['url'][16:], d['title']))
     return '<html><head><title>Qiita記事</title></head><body>' + \
            '<h1><a href="http://qiita.com">Qiita</a>: ' + \
-           '%sの検索結果</h1><ol>%s</ol></body></html>'%(user, '\n'.join(rr))
+           '%sの検索結果</h1><ol>%s</ol></body></html>'%(env['user'], '\n'.join(rr))
 
 def parse_str(ss):
     tt = list(takewhile(lambda s: not s.startswith('```'), ss))
@@ -92,8 +105,11 @@ def make_ipynb(url):
  "nbformat": 4,
  "nbformat_minor": 0
 }\n""")
-    return redirect(request.base_url[:request.base_url.index(':', 6)]+':8888/notebooks/'+fn)
+    if env['host'] is None:
+        env['host'] = request.base_url[:request.base_url.index(':', 6)]
+    return redirect(env['host']+':'+env['port']+'/notebooks/'+fn)
 
 if __name__ == '__main__':
-    os.system('jupyter notebook --ip=* --no-browser &')
+    #os.system('jupyter notebook --ip=* --no-browser &')
+    app.debug=True
     app.run('0.0.0.0', 5000)
