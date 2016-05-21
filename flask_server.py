@@ -3,12 +3,9 @@ from flask import Flask, redirect, request
 from itertools import takewhile
 
 app = Flask(__name__)
-app.start_jupyter = False
 env = {
   'tag': 'python',
   'user': 'Tsutomu-KKE@github',
-  'host': None,
-  'port': None,
 }
 
 @app.route('/config')
@@ -29,7 +26,7 @@ def root():
         rr.append('<li><a href="%s" target="_blank">%s</a></li>'%(d['url'][16:], d['title']))
     return '<html><head><title>Qiita記事</title></head><body>' + \
            '<h1><a href="http://qiita.com">Qiita</a>: ' + \
-           '%sの検索結果</h1><ol>%s</ol></body></html>'%(env['user'], '\n'.join(rr))
+           '%sの%sの検索結果</h1><ol>%s</ol></body></html>'%(env['user'], env['tag'], '\n'.join(rr))
 
 def parse_str(ss):
     tt = list(takewhile(lambda s: not s.startswith('```'), ss))
@@ -106,15 +103,10 @@ def make_ipynb(url):
  "nbformat": 4,
  "nbformat_minor": 0
 }\n""")
-    if env['host'] is None:
-        env['host'] = request.base_url[:request.base_url.index(':', 6)]
-    if env['port'] is None:
-        env['port'] = '8888'
-    if not app.start_jupyter:
-        app.start_jupyter = True
-        os.system('jupyter notebook --ip=* --port=%s --no-browser &'%env['port'])
-    return redirect(env['host']+':'+env['port']+'/notebooks/'+fn)
+    host = request.base_url[7:request.base_url.index(':', 6)]
+    return redirect('http://'+host+':8888/notebooks/'+fn)
 
 if __name__ == '__main__':
     #app.debug=True
+    os.system('jupyter notebook --ip=* --port=8888 --no-browser &')
     app.run('0.0.0.0', 5000)
