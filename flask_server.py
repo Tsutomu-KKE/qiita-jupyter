@@ -3,11 +3,12 @@ from flask import Flask, redirect, request
 from itertools import takewhile
 
 app = Flask(__name__)
+app.start_jupyter = False
 env = {
   'tag': 'python',
   'user': 'Tsutomu-KKE@github',
   'host': None,
-  'port': '8888',
+  'port': None,
 }
 
 @app.route('/config')
@@ -107,9 +108,13 @@ def make_ipynb(url):
 }\n""")
     if env['host'] is None:
         env['host'] = request.base_url[:request.base_url.index(':', 6)]
+    if env['port'] is None:
+        env['port'] = '8888'
+    if not app.start_jupyter:
+        app.start_jupyter = True
+        os.system('jupyter notebook --ip=* --port=%s --no-browser &'%env['port'])
     return redirect(env['host']+':'+env['port']+'/notebooks/'+fn)
 
 if __name__ == '__main__':
-    #os.system('jupyter notebook --ip=* --no-browser &')
-    app.debug=True
+    #app.debug=True
     app.run('0.0.0.0', 5000)
