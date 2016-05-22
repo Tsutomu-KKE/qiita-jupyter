@@ -20,18 +20,22 @@ def config():
 
 @app.route('/')
 def root():
+    qu = urllib.parse.quote(env['user'])
+    req = 'http://qiita.com/api/v2/users/'+qu
+    dt = json.loads(urllib.request.urlopen(req).read().decode())
+    nm = dt['name']
+    ic = dt['profile_image_url']
     req = 'http://qiita.com/api/v2/items?query=tag%3A' \
-          +urllib.parse.quote(env['tag'])+'+user%3A' \
-          +urllib.parse.quote(env['user'])+'&page=' \
+          +urllib.parse.quote(env['tag'])+'+user%3A'+qu+'&page=' \
           +env['page']+'&per_page='+env['per_page']
     dt = json.loads(urllib.request.urlopen(req).read().decode())
     rr = []
     print('<%s>'%env)
     for i, d in enumerate(dt):
         rr.append('<li><a href="%s" target="_blank">%s</a></li>'%(d['url'][16:], d['title']))
-    return '<html><head><title>Qiita記事</title></head><body>' + \
-           '<h1><a href="http://qiita.com">Qiita</a>: ' + \
-           '%sの%sの検索結果</h1><ol>%s</ol></body></html>'%(env['user'], env['tag'], '\n'.join(rr))
+    return '<html><head><title>Qiita記事</title></head><body><img src="%s" />'%ic + \
+           '<h3><a href="http://qiita.com/%s">Qiita</a>: '%qu + \
+           '%sの%sの検索結果</h3><ol>%s</ol></body></html>'%(nm, env['tag'], '\n'.join(rr))
 
 def parse_str(ss):
     tt = list(takewhile(lambda s: not s.startswith('```'), ss))
