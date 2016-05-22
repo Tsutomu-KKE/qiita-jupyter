@@ -8,6 +8,8 @@ env = {
   'user': 'Tsutomu-KKE@github',
   'host': None,
   'port': '8888',
+  'page': '1',
+  'per_page': '20',
 }
 
 @app.route('/config')
@@ -19,8 +21,9 @@ def config():
 @app.route('/')
 def root():
     req = 'http://qiita.com/api/v2/items?query=tag%3A' \
-          + urllib.parse.quote(env['tag'])+'+user%3A' \
-          + urllib.parse.quote(env['user'])
+          +urllib.parse.quote(env['tag'])+'+user%3A' \
+          +urllib.parse.quote(env['user'])+'&page=' \
+          +env['page']+'&per_page='+env['per_page']
     dt = json.loads(urllib.request.urlopen(req).read().decode())
     rr = []
     print('<%s>'%env)
