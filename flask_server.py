@@ -6,6 +6,8 @@ app = Flask(__name__)
 env = {
   'tag': 'python',
   'user': 'Tsutomu-KKE@github',
+  'host': None,
+  'port': '8888',
 }
 
 @app.route('/config')
@@ -103,8 +105,9 @@ def make_ipynb(url):
  "nbformat": 4,
  "nbformat_minor": 0
 }\n""")
-    host = request.base_url[7:request.base_url.index(':', 6)]
-    return redirect('http://'+host+':8888/notebooks/'+fn)
+    if not env['host']:
+        env['host'] = request.base_url[7:request.base_url.index(':', 6)]
+    return redirect('http://'+env['host']+':'+env['port']+'/notebooks/'+fn)
 
 if __name__ == '__main__':
     #app.debug=True
