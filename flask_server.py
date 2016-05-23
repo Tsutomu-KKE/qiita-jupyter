@@ -32,7 +32,7 @@ def root():
     for i, d in enumerate(dt):
         rr.append('<li><a href="%s" target="_blank">%s</a></li>'%(d['url'][16:], d['title']))
     return '<html><head><title>Qiita記事</title></head><body><img src="%s" />'%ic + \
-           '<h3><a href="http://qiita.com/">Qiita</a>: <h3><a href="http://qiita.com/%s">%s</a>'%(qu, nm) + \
+           '<h3><a href="http://qiita.com/">Qiita</a>: <a href="http://qiita.com/%s">%s</a>'%(qu, nm) + \
            'の%sの検索結果</h3><ol>%s</ol></body></html>'%(env['tag'], '\n'.join(rr))
 
 def parse_str(ss):
