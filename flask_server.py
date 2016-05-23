@@ -21,14 +21,12 @@ def config():
 @app.route('/')
 def root():
     qu = urllib.parse.quote(env['user'])
-    req = 'http://qiita.com/api/v2/users/'+qu
-    dt = json.loads(urllib.request.urlopen(req).read().decode())
-    nm = dt['name']
-    ic = dt['profile_image_url']
     req = 'http://qiita.com/api/v2/items?query=tag%3A' \
           +urllib.parse.quote(env['tag'])+'+user%3A'+qu+'&page=' \
           +env['page']+'&per_page='+env['per_page']
     dt = json.loads(urllib.request.urlopen(req).read().decode())
+    nm = dt[0]['user']['name']
+    ic = dt[0]['user']['profile_image_url']
     rr = []
     print('<%s>'%env)
     for i, d in enumerate(dt):
