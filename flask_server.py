@@ -1,15 +1,15 @@
-import json, os, sys, urllib
+﻿import json, os, sys, urllib
 from flask import Flask, redirect, request
 from itertools import takewhile
 
 app = Flask(__name__)
 env = {
-  'tag': 'python',
-  'user': 'Tsutomu-KKE@github',
+  'tag': os.environ.get('TAG', 'python'),
+  'user': os.environ.get('QUSER', 'Tsutomu-KKE@github'),
   'host': None,
   'port': '8888',
   'page': '1',
-  'per_page': '20',
+  'per_page': os.environ.get('PER_PAGE', '20'),
 }
 
 @app.route('/config')
@@ -25,7 +25,7 @@ def root():
           +urllib.parse.quote(env['tag'])+'+user%3A'+qu+'&page=' \
           +env['page']+'&per_page='+env['per_page']
     dt = json.loads(urllib.request.urlopen(req).read().decode())
-    nm = dt[0]['user']['name']
+    nm = dt[0]['user']['id']
     ic = dt[0]['user']['profile_image_url']
     rr = []
     print('<%s>'%env)
